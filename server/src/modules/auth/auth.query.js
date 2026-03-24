@@ -9,11 +9,17 @@ export async function findUserByEmail(email) {
 }
 
 export async function freeDeletedUserEmail(email) {
-  // Rename deleted user's email so the UNIQUE constraint is freed for a new row
   await pool.query(
     `UPDATE users SET email = CONCAT('deleted_', id, '_', email)
      WHERE email = ? AND is_deleted = 1`,
     [email]
+  );
+}
+
+export async function freeDeletedUserGoogleId(googleId) {
+  await pool.query(
+    `UPDATE users SET google_id = NULL WHERE google_id = ? AND is_deleted = 1`,
+    [googleId]
   );
 }
 
@@ -59,9 +65,37 @@ export async function linkGoogleToUser(userId, googleId) {
   );
 }
 
+// ── Refresh token ──────────────────────────────────────────────────────────
+
+export async function saveRefreshToken(userId, token) {
+  await pool.query(
+    `UPDATE users SET refresh_token = ? WHERE id = ?`,
+    [token, userId]
+  );
+}
+
+export async function findUserByRefreshToken(token) {
+  const [rows] = await pool.query(
+    `SELECT * FROM users WHERE refresh_token = ? AND is_deleted = 0`,
+    [token]
+  );
+  return rows[0] || null;
+}
+
+export async function clearRefreshToken(userId) {
+  await pool.query(
+    `UPDATE users SET refresh_token = NULL WHERE id = ?`,
+    [userId]
+  );
+}
+
+// ── Password (set / reset / forgot) ────────────────────────────────────────
+
 export async function setUserPassword(userId, hashedPassword) {
   await pool.query(
-    `UPDATE users SET password = ?, auth_type = 'both' WHERE id = ?`,
+    `UPDATE users SET password = ?, auth_type = 'both',
+     password_reset_token = NULL, password_reset_expires = NULL
+     WHERE id = ?`,
     [hashedPassword, userId]
   );
 }
@@ -75,17 +109,11 @@ export async function savePasswordResetToken(userId, token, expires) {
 
 export async function findUserByResetToken(token) {
   const [rows] = await pool.query(
-    `SELECT * FROM users WHERE password_reset_token = ? AND password_reset_expires > NOW() AND is_deleted = 0`,
+    `SELECT * FROM users WHERE password_reset_token = ?
+     AND password_reset_expires > NOW() AND is_deleted = 0`,
     [token]
   );
   return rows[0] || null;
-}
-
-export async function clearResetToken(userId) {
-  await pool.query(
-    `UPDATE users SET password_reset_token = NULL, password_reset_expires = NULL WHERE id = ?`,
-    [userId]
-  );
 }
 
 export async function createFarmerRecord(userId) {

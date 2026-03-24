@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Bell, Settings, ChevronDown, LogOut } from 'lucide-react'
 import useAuthStore from '../../store/authStore'
+import { logoutApi } from '../../features/auth/api'
 
 export default function Header({ pageTitle }) {
   const { user, logout } = useAuthStore()
@@ -20,7 +21,8 @@ export default function Header({ pageTitle }) {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  const confirmLogout = () => {
+  const confirmLogout = async () => {
+    try { await logoutApi() } catch { /* ignore */ }
     logout()
     navigate('/login')
   }

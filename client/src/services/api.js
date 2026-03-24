@@ -2,31 +2,55 @@ import axios from 'axios'
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000',
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  headers: { 'Content-Type': 'application/json' },
+  withCredentials: true,
 })
 
-// Attach JWT token to every request
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token')
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`
-  }
-  return config
-})
+let isRefreshing = false
+let failedQueue = []
 
-// Handle 401 — auto logout (skip for auth endpoints so login errors show properly)
+function processQueue(error) {
+  failedQueue.forEach((prom) => {
+    if (error) prom.reject(error)
+    else prom.resolve()
+  })
+  failedQueue = []
+}
+
+// Handle 401 — silently refresh access token, then retry original request
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
-    const url = error.config?.url || ''
+  async (error) => {
+    const originalRequest = error.config
+    const url = originalRequest?.url || ''
     const isAuthRoute = url.startsWith('/auth/')
-    if (error.response?.status === 401 && !isAuthRoute) {
-      localStorage.removeItem('token')
-      localStorage.removeItem('user')
-      window.location.href = '/login'
+
+    if (error.response?.status === 401 && !isAuthRoute && !originalRequest._retry) {
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject })
+        })
+          .then(() => api(originalRequest))
+          .catch((err) => Promise.reject(err))
+      }
+
+      originalRequest._retry = true
+      isRefreshing = true
+
+      try {
+        await api.post('/auth/refresh')
+        processQueue(null)
+        return api(originalRequest)
+      } catch (refreshError) {
+        processQueue(refreshError)
+        localStorage.removeItem('user')
+        window.location.href = '/login'
+        return Promise.reject(refreshError)
+      } finally {
+        isRefreshing = false
+      }
     }
+
     return Promise.reject(error)
   }
 )

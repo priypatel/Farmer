@@ -3,16 +3,14 @@ import config from '../config/env.js';
 import { errorResponse } from '../utils/response.js';
 
 export function verifyToken(req, res, next) {
-  const authHeader = req.headers.authorization;
+  const token = req.cookies?.access_token;
 
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return errorResponse(res, 'Access denied. No token provided.', 401);
+  if (!token) {
+    return errorResponse(res, 'Access denied. Please log in.', 401);
   }
 
-  const token = authHeader.split(' ')[1];
-
   try {
-    const decoded = jwt.verify(token, config.jwt.secret);
+    const decoded = jwt.verify(token, config.jwt.accessSecret);
     req.user = decoded;
     next();
   } catch {

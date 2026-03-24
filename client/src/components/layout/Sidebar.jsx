@@ -10,6 +10,7 @@ import {
   LogOut,
 } from 'lucide-react'
 import useAuthStore from '../../store/authStore'
+import { logoutApi } from '../../features/auth/api'
 
 const adminNav = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -31,7 +32,8 @@ export default function Sidebar() {
 
   const navItems = user?.role === 'farmer' ? farmerNav : adminNav
 
-  const confirmLogout = () => {
+  const confirmLogout = async () => {
+    try { await logoutApi() } catch { /* ignore */ }
     logout()
     navigate('/login')
   }

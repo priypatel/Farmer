@@ -33,8 +33,8 @@ export default function LoginPage() {
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
       const res = await loginWithEmailApi(values.email, values.password)
-      const { token, user } = res.data.data
-      setAuth(user, token)
+      const { user } = res.data.data
+      setAuth(user)
       toast.success('Login successful')
       navigateByRole(user.role)
     } catch (err) {
@@ -68,8 +68,8 @@ export default function LoginPage() {
   const handleGoogleSuccess = async (credentialResponse) => {
     try {
       const res = await loginWithGoogleApi(credentialResponse.credential)
-      const { token, user } = res.data.data
-      setAuth(user, token)
+      const { user } = res.data.data
+      setAuth(user)
       toast.success('Signed in with Google')
       navigateByRole(user.role)
     } catch (err) {
@@ -134,6 +134,13 @@ export default function LoginPage() {
               {errors.password && touched.password && (
                 <p className="text-xs text-red-500 mt-1">{errors.password}</p>
               )}
+            </div>
+
+            {/* Forgot password */}
+            <div className="text-right">
+              <Link to="/auth/forgot-password" className="text-xs text-primary hover:underline">
+                Forgot password?
+              </Link>
             </div>
 
             {/* Submit */}

@@ -20,6 +20,18 @@ export function setPasswordApi(token, password, confirmPassword) {
   return api.post('/auth/set-password', { token, password, confirmPassword })
 }
 
+export function forgotPasswordApi(email) {
+  return api.post('/auth/forgot-password', { email })
+}
+
+export function resetPasswordApi(token, password, confirmPassword) {
+  return api.post('/auth/reset-password', { token, password, confirmPassword })
+}
+
+export function logoutApi() {
+  return api.post('/auth/logout')
+}
+
 export function getMeApi() {
   return api.get('/auth/me')
 }

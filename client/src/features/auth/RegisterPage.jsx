@@ -40,8 +40,8 @@ export default function RegisterPage() {
         values.firstName, values.phone, values.email,
         values.role, values.password, values.confirmPassword
       )
-      const { token, user } = res.data.data
-      setAuth(user, token)
+      const { user } = res.data.data
+      setAuth(user)
       toast.success('Account created successfully')
       navigateByRole(user.role)
     } catch (err) {
@@ -55,8 +55,8 @@ export default function RegisterPage() {
   const handleGoogleSuccess = async (credentialResponse) => {
     try {
       const res = await loginWithGoogleApi(credentialResponse.credential)
-      const { token, user } = res.data.data
-      setAuth(user, token)
+      const { user } = res.data.data
+      setAuth(user)
       toast.success('Signed in with Google')
       navigateByRole(user.role)
     } catch (err) {
