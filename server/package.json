@@ -8,15 +8,16 @@
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
     "migrate": "node src/database/migrate.js",
-    "test": "jest --forceExit --detectOpenHandles",
-    "test:unit": "jest --testPathPattern=unit --forceExit",
-    "test:integration": "jest --testPathPattern=integration --forceExit --detectOpenHandles",
+    "test": "NODE_OPTIONS='--experimental-vm-modules' jest --forceExit --detectOpenHandles",
+    "test:unit": "NODE_OPTIONS='--experimental-vm-modules' jest --testPathPattern=unit --forceExit",
+    "test:integration": "NODE_OPTIONS='--experimental-vm-modules' jest --testPathPattern=integration --forceExit --detectOpenHandles",
     "lint": "eslint src/",
     "lint:fix": "eslint src/ --fix",
     "format": "prettier --write \"src/**/*.js\""
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "csv-parser": "^3.0.0",
     "dotenv": "^16.4.5",
@@ -29,6 +30,7 @@
     "multer": "^1.4.5-lts.1",
     "mysql2": "^3.11.0",
     "node-cron": "^3.0.3",
+    "resend": "^6.9.4",
     "winston": "^3.14.2",
     "xlsx": "^0.18.5"
   },

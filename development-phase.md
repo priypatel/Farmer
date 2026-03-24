@@ -41,22 +41,24 @@
 - [ ] Initialize `server/` with `npm init`
 - [ ] Install core dependencies: `express`, `mysql2`, `dotenv`, `jsonwebtoken`, `bcrypt`, `joi`, `winston`, `morgan`, `multer`, `csv-parser`, `xlsx`, `node-cron`, `firebase-admin`, `google-auth-library`
 - [ ] Install dev dependencies: `jest`, `supertest`, `nodemon`, `eslint`, `prettier`
-- [ ] `server/src/app.js` — Express app, mount middlewares, mount all routes
+- [x] `server/src/app.js` — Express app, mount middlewares, mount all routes (includes `cookie-parser`, CORS with `credentials: true`)
 - [ ] `server/src/server.js` — HTTP server start, DB connect, cron register
-- [ ] `server/src/config/env.js` — load + validate all required env vars on startup
-- [ ] `server/src/database/pool.js` — mysql2 createPool, export promise pool
+- [x] `server/src/config/env.js` — load + validate all required env vars on startup (uses `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, `NODE_ENV`, `CLIENT_URL`)
+- [x] `server/src/database/pool.js` — mysql2 createPool, export promise pool
 - [ ] `server/src/database/transaction.js` — `withTransaction(callback)` helper
 - [ ] `server/src/middlewares/errorHandler.js` — global catch-all error middleware
 - [ ] `server/src/utils/response.js` — `successResponse`, `errorResponse` helpers
 - [ ] `server/src/utils/logger.js` — Winston logger (file + console)
 - [ ] `server/.env.example` — all variables documented
-- [ ] `server/migrations/001_init_schema.sql` — all tables + indexes from DB_DESIGN.md
-  - Add `google_id VARCHAR(255)` and `auth_type ENUM('email','google') DEFAULT 'email'` to `users` table
+- [x] `server/migrations/001_init_schema.sql` — all tables + indexes from DB_DESIGN.md
+  - `google_id VARCHAR(255)` and `auth_type ENUM('email','google','both') DEFAULT 'email'` in `users` table
+  - `password_reset_token`, `password_reset_expires` columns in `users`
+- [x] `server/migrations/003_refresh_tokens.sql` — `ALTER TABLE users ADD COLUMN refresh_token TEXT NULL` *(extra — added for cookie-based auth)*
 
 ### Docker Setup (MySQL)
-- [ ] `docker-compose.yml` at root — MySQL 8, port `3306:3306` (connect via TablePlus/DBeaver on localhost:3306)
-- [ ] Set env vars: `MYSQL_DATABASE`, `MYSQL_USER`, `MYSQL_PASSWORD`, `MYSQL_ROOT_PASSWORD`
-- [ ] `server/src/database/migrate.js` — auto migration runner:
+- [x] `docker-compose.yml` at root — MySQL 8, port `3306:3306` (connect via TablePlus/DBeaver on localhost:3306)
+- [x] Set env vars: `MYSQL_DATABASE`, `MYSQL_USER`, `MYSQL_PASSWORD`, `MYSQL_ROOT_PASSWORD`
+- [x] `server/src/database/migrate.js` — auto migration runner:
   - On startup: creates `_migrations` table if not exists
   - Reads all `server/migrations/*.sql` files sorted numerically
   - Skips already-recorded files, executes new ones in order
@@ -66,19 +68,21 @@
 - [ ] First migration `001_init_schema.sql` includes seed: super_admin user with bcrypt-hashed password
 
 ### Client Setup
-- [ ] Initialize `client/` with `npm create vite@latest` (React + JS)
-- [ ] Install: `tailwindcss`, `@shadcn/ui`, `zustand`, `axios`, `formik`, `yup`, `react-router-dom`, `@tanstack/react-table`, `sonner`, `@react-oauth/google`
+- [x] Initialize `client/` with `npm create vite@latest` (React + JS)
+- [x] Install: `tailwindcss`, `@shadcn/ui`, `zustand`, `axios`, `formik`, `yup`, `react-router-dom`, `@tanstack/react-table`, `sonner`, `@react-oauth/google`
 - [ ] Install dev: `vitest`, `@testing-library/react`, `@testing-library/jest-dom`, `@playwright/test`
 - [ ] Configure Tailwind CSS + shadcn/ui base components
-- [ ] `client/src/services/api.js` — Axios instance, auth header interceptor, 401 auto-logout
-- [ ] `client/src/routes/index.jsx` — route groups (public, admin-only, farmer-only)
-- [ ] `client/src/routes/AuthGuard.jsx` — redirect unauthenticated users
-- [ ] `client/src/components/Layout.jsx` — sidebar + header shell (empty)
-- [ ] `client/src/store/authStore.js` — Zustand: `{ user, token, setAuth, logout }`
+- [x] `client/src/services/api.js` — Axios instance, `withCredentials: true`, silent refresh interceptor (queues requests during refresh, redirects on failure)
+- [x] `client/src/routes/index.jsx` — route groups (public, admin-only, farmer-only); includes `/auth/forgot-password`, `/auth/reset-password`, `/auth/set-password`
+- [x] `client/src/routes/AuthGuard.jsx` — redirect unauthenticated users (checks `user` only, tokens in HTTP-only cookies)
+- [x] `client/src/components/layout/AppLayout.jsx` — sidebar + header shell for protected pages
+- [x] `client/src/components/layout/Sidebar.jsx` — role-aware nav, calls `logoutApi()` before clearing store
+- [x] `client/src/components/layout/Header.jsx` — page title left, logout support
+- [x] `client/src/store/authStore.js` — Zustand: `{ user, setAuth, logout }` (no token — cookie-based auth) *(extra — token removed vs original spec)*
 - [ ] `client/.env.example` — `VITE_API_BASE_URL`, `VITE_GOOGLE_CLIENT_ID`
 - [ ] Configure Vitest in `vite.config.js` + `vitest.setup.js`
 - [ ] Configure Playwright in `playwright.config.js`
-- [ ] `404.jsx` page
+- [x] `404.jsx` page (NotFound)
 
 ### Acceptance Criteria
 - `docker-compose up` starts MySQL without errors
@@ -92,28 +96,47 @@
 **Goal:** Email/password register + login AND Google OAuth working, JWT issued for all flows.
 
 ### Backend
-- [ ] `auth.query.js`:
+- [x] `auth.query.js`:
   - `findUserByEmail(email)`
   - `findUserByGoogleId(googleId)`
   - `createEmailUser(firstName, phone, email, hashedPassword, role)` — `auth_type='email'`
   - `createGoogleUser(firstName, email, googleId, role)` — `auth_type='google'`
   - `getUserById(id)`
-- [ ] `config/google.js` — initialize `OAuth2Client` with `GOOGLE_CLIENT_ID`
-- [ ] `auth.service.js`:
-  - `register(firstName, phone, email, password, role)` — check duplicate → bcrypt.hash → createEmailUser → if role='farmer': also insert into `farmers` with `status='pending'` → jwt.sign
-  - `loginWithEmail(email, password)` — find user → bcrypt.compare → jwt.sign
-  - `loginWithGoogle(credential)` — verify Google ID token → find or create user → if new + farmer role: insert farmer record with `status='pending'` → jwt.sign
+  - `freeDeletedUserEmail(email)` — renames soft-deleted email to release UNIQUE constraint *(extra)*
+  - `freeDeletedUserGoogleId(googleId)` — sets `google_id = NULL` for soft-deleted users *(extra)*
+  - `saveRefreshToken(userId, token)` — stores refresh token in DB *(extra)*
+  - `findUserByRefreshToken(token)` *(extra)*
+  - `clearRefreshToken(userId)` *(extra)*
+  - `savePasswordResetToken(userId, token, expires)` *(extra)*
+  - `findUserByResetToken(token)` *(extra)*
+  - `createFarmerRecord(userId)` *(extra — separated from service)*
+- [x] `config/google.js` — initialize `OAuth2Client` with `GOOGLE_CLIENT_ID`
+- [x] `auth.service.js`:
+  - `register(...)` — check duplicate → bcrypt.hash → createEmailUser → farmer record → issue tokens
+  - `loginWithEmail(email, password)` — find user → bcrypt.compare → returns `PASSWORD_NOT_SET` error for Google-only users → issue tokens
+  - `loginWithGoogle(credential)` — verify token → freeDeletedUserGoogleId → find or create user → issue tokens
   - `getMe(userId)`
-- [ ] `auth.controller.js`:
+  - `refreshAccessToken(token)` — validates DB refresh token, rotates it *(extra)*
+  - `logout(userId)` — clears refresh token from DB *(extra)*
+  - `forgotPassword(email)` — generates reset token, sends via Resend email *(extra)*
+  - `resetPassword(token, newPassword)` — validates token, sets new password, clears token *(extra)*
+  - `requestSetPassword(userId, email)` — sends set-password link for Google-only users *(extra)*
+- [x] `auth.controller.js`:
   - `POST /auth/register` — email/password registration
   - `POST /auth/login` — email/password login
   - `POST /auth/google` — Google ID token (handles both register + login)
   - `GET /auth/me`
-- [ ] `auth.routes.js`
-- [ ] `auth.validation.js` — Joi schemas: register body (firstName, phone, email, password, role), login body
-- [ ] `middlewares/verifyToken.js` — decode JWT, attach `req.user`, 401 if invalid
-- [ ] `middlewares/authorizeRole.js` — `authorizeRole(['admin'])` — 403 if mismatch
-- [ ] `middlewares/validate.js` — Joi middleware factory
+  - `POST /auth/refresh` — rotates refresh token, issues new access token *(extra)*
+  - `POST /auth/logout` — clears cookies + DB refresh token *(extra)*
+  - `POST /auth/forgot-password` *(extra)*
+  - `POST /auth/reset-password` *(extra)*
+  - `POST /auth/set-password` *(extra)*
+- [x] `auth.routes.js`
+- [x] `auth.validation.js` — Joi schemas: register, login, forgotPassword, resetPassword, setPassword *(extra schemas added)*
+- [x] `middlewares/verifyToken.js` — reads from `req.cookies.access_token`, attaches `req.user`, 401 if invalid
+- [x] `middlewares/authorizeRole.js` — `authorizeRole(['admin'])` — 403 if mismatch
+- [x] `middlewares/validate.js` — Joi middleware factory
+- [x] Access token: 15 min, Refresh token: 7 days, both HTTP-only cookies *(extra — replaces localStorage JWT)*
 
 ### Tests
 - [ ] `auth.service.test.js`:
@@ -148,52 +171,63 @@
 **Goal:** Register + Login pages with reference design (split illustration/form layout), Google Sign-In, token stored in Zustand.
 
 ### Design Reference
-- Auth layout: white background, "SIGN IN" / "SIGN UP" label top-left
-- Left half: agricultural illustration (farmers with crops)
-- Right half: white card (`rounded-xl shadow-md p-8`) centered vertically
+- Auth layout: gray background, centered card (image left panel, form right panel)
+- Left panel: full image (`object-contain`, white bg) — `login.png` / `register.png`
+- Right panel: white, form centered vertically
 - Primary color: `#4B9B4D` for buttons and focus states
 - Google button: outlined, Google logo icon
 
 ### Frontend — Bootstrap
-- [ ] Wrap `App.jsx` with `GoogleOAuthProvider clientId={VITE_GOOGLE_CLIENT_ID}`
+- [x] Wrap `App.jsx` with `GoogleOAuthProvider clientId={VITE_GOOGLE_CLIENT_ID}`
 - [ ] Configure Tailwind with design tokens: `primary: #4B9B4D`, `sidebar-bg: #1E5C20`
-- [ ] `components/layout/AuthLayout.jsx` — split layout shell (illustration left, card slot right)
-- [ ] `components/layout/AppLayout.jsx` — sidebar + header shell for protected pages
-- [ ] `components/layout/Sidebar.jsx`:
+- [x] `components/layout/AuthLayout.jsx` — card layout: gray bg, image left panel (`object-contain`), form right panel; no text overlay on image
+- [x] `components/layout/AppLayout.jsx` — sidebar + header shell for protected pages
+- [x] `components/layout/Sidebar.jsx`:
   - Background `#1E5C20`, width `w-56`
   - Logo "FPO" white bold text
   - Role-aware nav items: Dashboard, Farmers, Demand Planning, Reports, Inventory, Logout
   - Active item: `bg-[#2D7A30]`
-- [ ] `components/layout/Header.jsx` — page title left, Alerts + Settings + Admin dropdown right
+  - Calls `logoutApi()` before clearing store on logout
+- [x] `components/layout/Header.jsx` — page title left, logout support
 
 ### Frontend — Register Page
-- [ ] `features/auth/RegisterPage.jsx`:
-  - Uses `AuthLayout`
+- [x] `features/auth/RegisterPage.jsx`:
+  - Uses `AuthLayout` with `register.png`
   - Formik fields: First Name, Phone, Email, Role (select: farmer/admin), Password, Confirm Password
   - "Create Account" primary button (full width, `#4B9B4D`)
   - "Has account? Sign in" link → `/login`
   - "— Quick Signup With —" divider
-  - `GoogleLogin` button (outlined style) → calls `registerWithGoogleApi`
+  - `GoogleLogin` button (outlined style) → calls `loginWithGoogleApi`
 
 ### Frontend — Login Page
-- [ ] `features/auth/LoginPage.jsx`:
-  - Uses `AuthLayout`
+- [x] `features/auth/LoginPage.jsx`:
+  - Uses `AuthLayout` with `login.png`
   - Formik fields: Email, Password (with show/hide eye toggle)
   - "Sign In" primary button (full width)
+  - "Forgot password?" link → `/auth/forgot-password` *(extra)*
   - "Don't have an account? Sign up" link → `/register`
   - "— Or continue with —" divider
   - `GoogleLogin` button
 
+### Frontend — Extra Auth Pages *(added beyond original spec)*
+- [x] `features/auth/ForgotPasswordPage.jsx` — email input, calls `forgotPasswordApi`, shows success state
+- [x] `features/auth/ResetPasswordPage.jsx` — reads `?token=` from URL, new password + confirm, calls `resetPasswordApi`
+- [x] `features/auth/SetPasswordPage.jsx` — same as reset but for Google-only users setting password for first time
+
 ### Frontend — API & Store
-- [ ] `features/auth/api.js`:
+- [x] `features/auth/api.js`:
   - `loginWithEmailApi(email, password)` → `POST /auth/login`
   - `registerWithEmailApi(firstName, phone, email, role, password)` → `POST /auth/register`
   - `loginWithGoogleApi(credential)` → `POST /auth/google`
   - `getMeApi()` → `GET /auth/me`
-- [ ] `store/authStore.js` — Zustand: `{ user, token, setAuth, logout }`, persist token to localStorage
-- [ ] `routes/AuthGuard.jsx` — redirect to `/login` if no token
+  - `logoutApi()` → `POST /auth/logout` *(extra)*
+  - `forgotPasswordApi(email)` → `POST /auth/forgot-password` *(extra)*
+  - `resetPasswordApi(token, password)` → `POST /auth/reset-password` *(extra)*
+  - `setPasswordApi(token, password)` → `POST /auth/set-password` *(extra)*
+- [x] `store/authStore.js` — Zustand: `{ user, setAuth, logout }`, persist user to localStorage (no token — HTTP-only cookies) *(changed from original spec)*
+- [x] `routes/AuthGuard.jsx` — redirect to `/login` if no `user` in store
 - [ ] `routes/RoleGuard.jsx` — redirect if role not permitted
-- [ ] `routes/index.jsx` — public routes: `/login`, `/register`; protected routes per role
+- [x] `routes/index.jsx` — public: `/login`, `/register`, `/auth/set-password`, `/auth/forgot-password`, `/auth/reset-password`; protected per role
 
 ### Tests
 - [ ] `RegisterPage.test.jsx`:
@@ -211,11 +245,13 @@
 - [ ] `AuthGuard.test.jsx` — redirects unauthenticated, renders children if authenticated
 
 ### Acceptance Criteria
-- Register page matches reference design (split layout, illustration, white form card)
-- Login page matches reference design
-- Both Google and email flows store token and redirect to dashboard
-- Token persists across page reload (localStorage)
-- Role-based routing: farmer redirected to demand page, admin to dashboard
+- [x] Register page: card layout, `register.png` left, form right
+- [x] Login page: card layout, `login.png` left, form right
+- [x] Both Google and email flows set HTTP-only cookies and redirect (farmer → `/demand`, admin → `/dashboard`)
+- [x] User object persists across page reload (localStorage), tokens in HTTP-only cookies
+- [x] Role-based routing: farmer → `/demand`, admin → `/dashboard`
+- [x] Forgot password email sent via Resend
+- [x] Reset/set password token validated server-side with expiry check
 
 ---
 

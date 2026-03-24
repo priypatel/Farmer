@@ -1,13 +1,16 @@
 import { BrowserRouter } from 'react-router-dom'
+import { GoogleOAuthProvider } from '@react-oauth/google'
 import { Toaster } from 'sonner'
-import AppRoutes from './routes/index.jsx'
+import AppRoutes from './routes/index'
 
 function App() {
   return (
-    <BrowserRouter>
-      <AppRoutes />
-      <Toaster position="top-right" richColors />
-    </BrowserRouter>
+    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || ''}>
+      <BrowserRouter>
+        <AppRoutes />
+        <Toaster position="top-right" richColors closeButton />
+      </BrowserRouter>
+    </GoogleOAuthProvider>
   )
 }
 
