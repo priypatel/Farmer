@@ -17,7 +17,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(requestLogger);
-//
+
 
 // Health check
 app.get('/health', (req, res) => {
@@ -26,7 +26,9 @@ app.get('/health', (req, res) => {
 
 // Route modules
 import authRoutes from './modules/auth/auth.routes.js';
+import masterRoutes from './modules/master/master.routes.js';
 app.use('/auth', authRoutes);
+app.use('/master', masterRoutes);
 
 // Error handler (must be last)
 app.use(errorHandler);

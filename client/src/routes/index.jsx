@@ -6,6 +6,7 @@ import RegisterPage from '../features/auth/RegisterPage'
 import ForgotPasswordPage from '../features/auth/ForgotPasswordPage'
 import ResetPasswordPage from '../features/auth/ResetPasswordPage'
 import SetPasswordPage from '../features/auth/SetPasswordPage'
+import MasterDataPage from '../features/master/MasterDataPage'
 import NotFound from '../pages/NotFound'
 import useAuthStore from '../store/authStore'
 
@@ -42,6 +43,9 @@ export default function AppRoutes() {
           </Route>
           <Route element={<AppLayout pageTitle="Reports" />}>
             <Route path="/reports" element={<div className="text-gray-700">Reports (Phase 17)</div>} />
+          </Route>
+          <Route element={<AppLayout pageTitle="Master Data" />}>
+            <Route path="/master" element={<MasterDataPage />} />
           </Route>
         </Route>
 

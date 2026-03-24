@@ -8,6 +8,7 @@ import {
   Package,
   Bell,
   LogOut,
+  Database,
 } from 'lucide-react'
 import useAuthStore from '../../store/authStore'
 import { logoutApi } from '../../features/auth/api'
@@ -18,6 +19,7 @@ const adminNav = [
   { to: '/demand', label: 'Demand Planning', icon: ClipboardList },
   { to: '/reports', label: 'Reports', icon: BarChart3 },
   { to: '/inventory', label: 'Inventory', icon: Package },
+  { to: '/master', label: 'Master Data', icon: Database },
 ]
 
 const farmerNav = [
