@@ -38,6 +38,11 @@ const config = {
   google: {
     clientId: process.env.GOOGLE_CLIENT_ID || '',
   },
+  resend: {
+    apiKey: process.env.RESEND_API_KEY || '',
+    fromEmail: process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev',
+  },
+  clientUrl: process.env.CLIENT_URL || 'http://localhost:5173',
   firebase: {
     serviceAccount: process.env.FIREBASE_SERVICE_ACCOUNT || '{}',
   },

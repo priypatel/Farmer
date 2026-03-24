@@ -16,11 +16,13 @@ api.interceptors.request.use((config) => {
   return config
 })
 
-// Handle 401 — auto logout
+// Handle 401 — auto logout (skip for auth endpoints so login errors show properly)
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const url = error.config?.url || ''
+    const isAuthRoute = url.startsWith('/auth/')
+    if (error.response?.status === 401 && !isAuthRoute) {
       localStorage.removeItem('token')
       localStorage.removeItem('user')
       window.location.href = '/login'

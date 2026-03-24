@@ -17,8 +17,9 @@ app.get('/health', (req, res) => {
   successResponse(res, { status: 'ok' }, 'Server is running');
 });
 
-// TODO: Mount route modules here as they are built
-// app.use('/api/auth', authRoutes);
+// Route modules
+import authRoutes from './modules/auth/auth.routes.js';
+app.use('/auth', authRoutes);
 
 // Error handler (must be last)
 app.use(errorHandler);
