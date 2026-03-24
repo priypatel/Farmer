@@ -26,7 +26,7 @@ export default function SetPasswordPage() {
 
   if (!token) {
     return (
-      <AuthLayout label="SET PASSWORD">
+      <AuthLayout>
         <div className="text-center py-8">
           <p className="text-red-500 font-medium">Invalid link. No token provided.</p>
         </div>
@@ -36,7 +36,7 @@ export default function SetPasswordPage() {
 
   if (success) {
     return (
-      <AuthLayout label="SET PASSWORD">
+      <AuthLayout>
         <div className="text-center py-8">
           <h2 className="text-xl font-semibold text-gray-900 mb-3">Password Set Successfully!</h2>
           <p className="text-sm text-gray-600 mb-4">You can now log in with your email and password.</p>
@@ -65,7 +65,7 @@ export default function SetPasswordPage() {
   }
 
   return (
-    <AuthLayout label="SET PASSWORD">
+    <AuthLayout>
       <h2 className="text-xl font-semibold text-gray-900 mb-6">Set Your Password</h2>
       <p className="text-sm text-gray-500 mb-4">
         Create a password so you can log in with email and password in addition to Google.

@@ -66,7 +66,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <AuthLayout label="SIGN UP">
+    <AuthLayout image="/register.png">
       <h2 className="text-xl font-semibold text-gray-900 mb-6">Create Account</h2>
 
       <Formik

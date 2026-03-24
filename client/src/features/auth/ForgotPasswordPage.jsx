@@ -29,7 +29,7 @@ export default function ForgotPasswordPage() {
 
   if (sent) {
     return (
-      <AuthLayout label="FORGOT PASSWORD">
+      <AuthLayout>
         <div className="text-center py-8">
           <h2 className="text-xl font-semibold text-gray-900 mb-3">Check Your Email</h2>
           <p className="text-sm text-gray-600 mb-6">
@@ -44,7 +44,7 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <AuthLayout label="FORGOT PASSWORD">
+    <AuthLayout>
       <h2 className="text-xl font-semibold text-gray-900 mb-2">Forgot Password</h2>
       <p className="text-sm text-gray-500 mb-6">
         Enter your email and we'll send you a reset link.

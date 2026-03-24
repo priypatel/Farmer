@@ -26,7 +26,7 @@ export default function ResetPasswordPage() {
 
   if (!token) {
     return (
-      <AuthLayout label="RESET PASSWORD">
+      <AuthLayout>
         <div className="text-center py-8">
           <p className="text-red-500 font-medium">Invalid link. No token provided.</p>
         </div>
@@ -36,7 +36,7 @@ export default function ResetPasswordPage() {
 
   if (success) {
     return (
-      <AuthLayout label="RESET PASSWORD">
+      <AuthLayout>
         <div className="text-center py-8">
           <h2 className="text-xl font-semibold text-gray-900 mb-3">Password Updated!</h2>
           <p className="text-sm text-gray-600 mb-4">You can now log in with your new password.</p>
@@ -65,7 +65,7 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <AuthLayout label="RESET PASSWORD">
+    <AuthLayout>
       <h2 className="text-xl font-semibold text-gray-900 mb-2">Set New Password</h2>
       <p className="text-sm text-gray-500 mb-6">
         Choose a strong password of at least 8 characters.

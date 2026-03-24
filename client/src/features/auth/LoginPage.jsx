@@ -79,7 +79,7 @@ export default function LoginPage() {
   }
 
   return (
-    <AuthLayout label="SIGN IN">
+    <AuthLayout image="/login.png">
       <h2 className="text-xl font-semibold text-gray-900 mb-6">Sign In</h2>
 
       {needsPassword && (
