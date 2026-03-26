@@ -63,27 +63,27 @@
 - [x] `components/layout/Header.jsx` — page title left, logout support
 
 **Data Display**
-- [ ] `components/ui/DataTable.jsx` — TanStack Table wrapper: sorting, pagination, loading skeleton, empty state
-- [ ] `components/ui/Pagination.jsx` — page controls, used inside DataTable
-- [ ] `components/ui/StatusBadge.jsx` — `active=green`, `pending=yellow`, `suspended=red`
-- [ ] `components/ui/ProgressBar.jsx` — remaining/total bar (demand + booking pages)
-- [ ] `components/ui/StatCard.jsx` — metric card: number + label + optional icon (dashboard)
-- [ ] `components/ui/LoadingSpinner.jsx` — centered, primary color
-- [ ] `components/ui/EmptyState.jsx` — illustration + message for empty list states
+- [x] `components/ui/DataTable.jsx` — TanStack Table wrapper: sorting, pagination, loading skeleton, empty state
+- [x] `components/ui/Pagination.jsx` — page controls, used inside DataTable
+- [x] `components/ui/StatusBadge.jsx` — `active=green`, `pending=yellow`, `suspended=red`
+- [x] `components/ui/ProgressBar.jsx` — remaining/total bar (demand + booking pages)
+- [x] `components/ui/StatCard.jsx` — metric card: number + label + optional icon (dashboard)
+- [x] `components/ui/LoadingSpinner.jsx` — centered, primary color
+- [x] `components/ui/EmptyState.jsx` — illustration + message for empty list states
 - [ ] `components/ui/ErrorMessage.jsx` — API error display block
 
 **Overlays**
-- [ ] `components/ui/Modal.jsx` — dialog shell: title + close button. All modals use this.
-- [ ] `components/ui/ConfirmDialog.jsx` — "Are you sure?" modal. Used for delete + booking confirm.
+- [x] `components/ui/Modal.jsx` — dialog shell: title + close button. All modals use this.
+- [x] `components/ui/ConfirmDialog.jsx` — "Are you sure?" modal. Used for delete + booking confirm.
 
 **Forms & Inputs**
-- [ ] `components/form/FormField.jsx` — label + input + Yup error wrapper. All Formik fields use this.
-- [ ] `components/form/SelectInput.jsx` — styled single-select (wraps shadcn Select with defaults)
-- [ ] `components/form/MultiSelect.jsx` — multi-select (crop assignment in farmer create/edit)
-- [ ] `components/form/DateRangePicker.jsx` — start + end date inputs (reports + demand filters)
+- [x] `components/form/FormField.jsx` — label + input + Yup error wrapper. All Formik fields use this.
+- [x] `components/form/SelectInput.jsx` — styled single-select (wraps shadcn Select with defaults)
+- [x] `components/form/MultiSelect.jsx` — multi-select (crop assignment in farmer create/edit)
+- [x] `components/form/DateRangePicker.jsx` — start + end date inputs (reports + demand filters)
 - [ ] `components/form/FileUpload.jsx` — drag-and-drop or click (bulk upload)
-- [ ] `components/form/SearchInput.jsx` — debounced 300ms search input
-- [ ] `components/form/FilterBar.jsx` — horizontal filter row shell (farmers, demand, inventory, reports)
+- [x] `components/form/SearchInput.jsx` — debounced 300ms search input
+- [x] `components/form/FilterBar.jsx` — horizontal filter row shell (farmers, demand, inventory, reports)
 
 ---
 
@@ -205,13 +205,16 @@
 ## PHASE 3 — Master Data — Backend
 
 ### Backend
-- [ ] `master/master.query.js`:
-  - `getAllCrops()`, `createCrop(name)`, `updateCrop(id, name)`, `softDeleteCrop(id)`
-  - `getAllLocations()`, `createLocation(name)`, `updateLocation(id, name)`
-  - `getAllBranches()`, `createBranch(name)`, `updateBranch(id, name)`
-- [ ] `master/master.controller.js` — handlers for all above
-- [ ] `master/master.routes.js` — GET: all roles; POST/PUT/DELETE: admin only
-- [ ] `master/master.validation.js` — Joi schemas
+- [x] `master/master.query.js`:
+  - `getAllCrops()`, `getCropById(id)`, `findActiveCropByName(name)`, `createCrop(name)`, `updateCrop(id, name)`, `softDeleteCrop(id)`
+  - `getAllLocations()`, `getLocationById(id)`, `findActiveLocationByName(name)`, `createLocation(name)`, `updateLocation(id, name)`, `softDeleteLocation(id)`
+  - `getAllBranches()`, `getBranchById(id)`, `findActiveBranchByName(name)`, `createBranch(name)`, `updateBranch(id, name)`, `softDeleteBranch(id)`
+- [x] `master/master.service.js` — duplicate check + not-found validation for all entities
+- [x] `master/master.controller.js` — handlers for all above
+- [x] `master/master.routes.js` — GET: all roles; POST/PUT/DELETE: admin only
+- [x] `master/master.validation.js` — Joi schemas (nameSchema, idParamSchema)
+- [x] `server/migrations/004_master_soft_delete.sql` — adds `deleted_at DATETIME NULL`, `UNIQUE(name, deleted_at)` for crops/locations/branches
+- [x] `server/migrations/005_master_soft_delete_fix.sql` — drops `is_deleted` column, fixes indexes *(migration fix)*
 
 ### Tests
 - [ ] `master.routes.test.js`:
@@ -225,8 +228,9 @@
 ## PHASE 4 — Master Data — Frontend
 
 ### Frontend
-- [ ] `features/master/api.js` — `getCrops()`, `getLocations()`, `getBranches()`
-- [ ] `features/master/hooks.js` — `useCrops()`, `useLocations()`, `useBranches()` — fetch on mount, cache in module state
+- [x] `features/master/api.js` — full CRUD: `getCropsApi()`, `createCropApi()`, `updateCropApi()`, `deleteCropApi()` + same for locations/branches
+- [x] `features/master/hooks.js` — `useCrops()`, `useLocations()`, `useBranches()` — fetch on mount, refetch support
+- [x] `features/master/MasterDataPage.jsx` — temporary admin page with tabs for Crops/Locations/Branches CRUD *(extra — temporary management UI)*
 
 ### Tests
 - [ ] `hooks.test.js` — useCrops returns array, handles API error

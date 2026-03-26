@@ -23,8 +23,8 @@
 | 0 | Both | Project Setup & Infrastructure | 🔄 In Progress |
 | 1 | Backend | Auth — Backend | ✅ Complete |
 | 2 | Frontend | Auth — Frontend | ✅ Complete |
-| 3 | Backend | Master Data — Backend | ⬜ Not Started |
-| 4 | Frontend | Master Data — Frontend | ⬜ Not Started |
+| 3 | Backend | Master Data — Backend | ✅ Complete |
+| 4 | Frontend | Master Data — Frontend | ✅ Complete |
 | 5 | Backend | Farmers — Backend | ⬜ Not Started |
 | 6 | Frontend | Farmers — Frontend | ⬜ Not Started |
 | 7 | Backend | Demand Planning — Backend | ⬜ Not Started |
@@ -86,12 +86,12 @@
 - [ ] Playwright config (`playwright.config.js`)
 - [ ] `client/eslint.config.js` + `.prettierrc`
 
-### Shared UI Components (all pending)
-- [ ] `DataTable.jsx`, `Pagination.jsx`, `StatusBadge.jsx`, `ProgressBar.jsx`
-- [ ] `StatCard.jsx`, `LoadingSpinner.jsx`, `EmptyState.jsx`, `ErrorMessage.jsx`
-- [ ] `Modal.jsx`, `ConfirmDialog.jsx`
-- [ ] `FormField.jsx`, `SelectInput.jsx`, `MultiSelect.jsx`
-- [ ] `DateRangePicker.jsx`, `FileUpload.jsx`, `SearchInput.jsx`, `FilterBar.jsx`
+### Shared UI Components
+- [x] `DataTable.jsx`, `Pagination.jsx`, `StatusBadge.jsx`, `ProgressBar.jsx`
+- [x] `StatCard.jsx`, `LoadingSpinner.jsx`, `EmptyState.jsx` | [ ] `ErrorMessage.jsx`
+- [x] `Modal.jsx`, `ConfirmDialog.jsx`
+- [x] `FormField.jsx`, `SelectInput.jsx`, `MultiSelect.jsx`
+- [x] `DateRangePicker.jsx`, `SearchInput.jsx`, `FilterBar.jsx` | [ ] `FileUpload.jsx`
 
 ---
 
@@ -147,23 +147,27 @@
 
 ---
 
-## Phase 3 — Master Data — Backend ⬜
+## Phase 3 — Master Data — Backend ✅
 
 ### Backend
-- [ ] `master/master.query.js` — CRUD for crops, locations, branches
-- [ ] `master/master.controller.js`
-- [ ] `master/master.routes.js` — GET: all roles; POST/PUT/DELETE: admin only
-- [ ] `master/master.validation.js`
+- [x] `master/master.query.js` — CRUD + soft delete for crops, locations, branches (uses `deleted_at IS NULL`)
+- [x] `master/master.service.js` — duplicate check, not-found validation
+- [x] `master/master.controller.js`
+- [x] `master/master.routes.js` — GET: all roles; POST/PUT/DELETE: admin only
+- [x] `master/master.validation.js` — nameSchema, idParamSchema
+- [x] `migrations/004_master_soft_delete.sql` — `deleted_at` + `UNIQUE(name, deleted_at)`
+- [x] `migrations/005_master_soft_delete_fix.sql` — drops `is_deleted`, fixes indexes
 
 ### Tests
 - [ ] `master.routes.test.js` — create, list, duplicate, farmer 403
 
 ---
 
-## Phase 4 — Master Data — Frontend ⬜
+## Phase 4 — Master Data — Frontend ✅
 
-- [ ] `features/master/api.js` — getCrops, getLocations, getBranches
-- [ ] `features/master/hooks.js` — useCrops, useLocations, useBranches
+- [x] `features/master/api.js` — full CRUD for crops, locations, branches
+- [x] `features/master/hooks.js` — useCrops, useLocations, useBranches (fetch + refetch)
+- [x] `features/master/MasterDataPage.jsx` — temporary admin CRUD page with tabs *(extra)*
 - [ ] `components/ui/CropSelect.jsx`, `LocationSelect.jsx`, `BranchSelect.jsx`
 
 ---

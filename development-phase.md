@@ -260,13 +260,15 @@
 **Goal:** CRUD APIs for crops, locations, and branches (used as dropdowns throughout the app).
 
 ### Backend
-- [ ] `master/master.query.js`:
-  - `getAllCrops()`, `createCrop(name)`, `updateCrop(id, name)`, `softDeleteCrop(id)`
-  - `getAllLocations()`, `createLocation(name)`, `updateLocation(id, name)`
-  - `getAllBranches()`, `createBranch(name)`, `updateBranch(id, name)`
-- [ ] `master/master.controller.js` — handlers for all above
-- [ ] `master/master.routes.js` — GET: all roles; POST/PUT/DELETE: admin only
-- [ ] `master/master.validation.js` — Joi schemas
+- [x] `master/master.query.js`:
+  - `getAllCrops()`, `getCropById(id)`, `findActiveCropByName(name)`, `createCrop(name)`, `updateCrop(id, name)`, `softDeleteCrop(id)`
+  - Same pattern for Locations and Branches
+- [x] `master/master.service.js` — duplicate check via `findActive*ByName`, not-found check via `get*ById`, soft delete via `deleted_at`
+- [x] `master/master.controller.js` — handlers for all above
+- [x] `master/master.routes.js` — GET: all roles; POST/PUT/DELETE: admin only
+- [x] `master/master.validation.js` — Joi schemas (nameSchema, idParamSchema)
+- [x] `server/migrations/004_master_soft_delete.sql` — `deleted_at DATETIME NULL` + `UNIQUE(name, deleted_at)` index
+- [x] `server/migrations/005_master_soft_delete_fix.sql` — drops `is_deleted`, fixes indexes *(migration fix)*
 
 ### Tests
 - [ ] `master.routes.test.js`:
@@ -276,9 +278,9 @@
   - farmer cannot create crop → 403
 
 ### Acceptance Criteria
-- All list endpoints return arrays sorted by name
-- Duplicate name returns 409 with clear message
-- Soft delete removes from list but keeps record
+- [x] All list endpoints return arrays sorted by name
+- [x] Duplicate name returns 409 with clear message
+- [x] Soft delete removes from list but keeps record (using `deleted_at` — industry standard)
 
 ---
 
@@ -287,8 +289,9 @@
 **Goal:** Shared dropdown components using master data, ready for use in all future feature forms.
 
 ### Frontend
-- [ ] `features/master/api.js` — `getCrops()`, `getLocations()`, `getBranches()`
-- [ ] `features/master/hooks.js` — `useCrops()`, `useLocations()`, `useBranches()` — fetch on mount, cache in module state
+- [x] `features/master/api.js` — full CRUD for crops, locations, branches
+- [x] `features/master/hooks.js` — `useCrops()`, `useLocations()`, `useBranches()` — fetch on mount, refetch support
+- [x] `features/master/MasterDataPage.jsx` — temporary admin page with tabs for Crops/Locations/Branches management *(extra)*
 - [ ] `components/ui/CropSelect.jsx` — reusable crop dropdown (single + multi)
 - [ ] `components/ui/LocationSelect.jsx`
 - [ ] `components/ui/BranchSelect.jsx`
